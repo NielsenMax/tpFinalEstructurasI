@@ -1,6 +1,7 @@
 #include "lista.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 Lista lista_crear(unsigned capacidad, FuncionCopiadora copia, FuncionDestructora destr) {
     Lista lista = malloc(sizeof(struct _Lista));
@@ -17,7 +18,7 @@ Lista lista_crear(unsigned capacidad, FuncionCopiadora copia, FuncionDestructora
 static void lista_nodo_destruir(NodoLista* nodo, FuncionDestructora destr) {
     if (nodo) {
         destr(nodo->dato);
-        lista_nodo_destruir(nodo->sig);
+        lista_nodo_destruir(nodo->sig, destr);
         free(nodo);
     }
 }
@@ -40,12 +41,15 @@ static NodoLista* lista_nodo_insertar(NodoLista* ult, void* dato, FuncionCopiado
     nuevoNodo->ant = ult;
     nuevoNodo->sig = NULL;
     nuevoNodo->dato = copia(dato);
-    return nuevoNodo
+    if (ult)
+        ult->sig = nuevoNodo;
+    return nuevoNodo;
 }
 
 void lista_insertar(Lista lista, void* dato) {
     if (lista->act && lista->act->sig) {//caso de que haya acciones para rehacer
-        lista_nodo_destruir(lista->act->sig);
+        printf("Elimino los siguientes");
+        lista_nodo_destruir(lista->act->sig, lista->destr);
         lista->nNodos = lista_largo(lista);
     }
     lista->act = lista_nodo_insertar(lista->act, dato, lista->copia);
@@ -60,11 +64,28 @@ void lista_insertar(Lista lista, void* dato) {
     }
 }
 
-void* lista_pop(Lista lista) {
+void* lista_anterior(Lista lista) {
     if (lista->act) {
         void* dato = lista->act->dato;
-        lista->act = lista->act->ant;
+        if (lista->act->ant)
+            lista->act = lista->act->ant;
+        else if (dato){
+            NodoLista* nuevoNodo = malloc(sizeof(NodoLista));
+            nuevoNodo->dato = NULL;
+            nuevoNodo->ant = NULL;
+            nuevoNodo->sig = lista->act;
+            lista->act = nuevoNodo;
+            lista->prm = nuevoNodo;
+        }
         return dato;
+    }
+    return NULL;
+}
+
+void* lista_siguiente(Lista lista) {
+    if (lista->act && lista->act->sig) {
+        lista->act = lista->act->sig;
+        return lista->act->dato;
     }
     return NULL;
 }

@@ -24,9 +24,9 @@ typedef struct _Array *Array;
 
 Array array_crear(unsigned, FuncionCopiadora copia, FuncionDestructora destr);
 
-int array_nelems(Array);
+unsigned array_nelems(Array);
 
-int array_capacidad(Array);
+unsigned array_capacidad(Array);
 
 void array_destruir(Array);
 

@@ -19,6 +19,7 @@ void* contacto_crear(char* nombre, char* apellido, char* telefono, unsigned int 
   strcpy(nuevo->apellido, apellido);
 
   nuevo->telefono = malloc(sizeof(char) * (strlen(telefono) + 1));
+  assert(nuevo->telefono);
   strcpy(nuevo->telefono, telefono);
 
   nuevo->edad = edad;
@@ -70,8 +71,10 @@ void contacto_destruir(void* c) {
 }
 
 void contacto_imprimir(void* c, void* extras) {
-    Contacto contacto = (Contacto) c;
-    printf("{%s, %s, %s, %d}", contacto->nombre, contacto->apellido, contacto->telefono, contacto->edad);
+    if (!extras) {
+        Contacto contacto = (Contacto) c;
+        printf("{%s, %s, %s, %d}", contacto->nombre, contacto->apellido, contacto->telefono, contacto->edad);
+    }
 }
 
 void contacto_agregar_avl(void* c, void* extras) {
@@ -84,6 +87,52 @@ void contacto_agregar_array(void* c, void* extras) {
     Contacto contacto = (Contacto) c;
     Array array = (Array) extras;
     array_insertar(array, contacto);
+}
+
+BuscarOrAnd buscarorand_crear(Contacto c, unsigned n) {
+    BuscarOrAnd buscar = malloc(sizeof(struct _BuscarOrAnd));
+    assert(buscar);
+    buscar->dato = contacto_copia(c);
+    buscar->resultado = array_crear(n, contacto_copia, contacto_destruir);
+    return buscar;
+}
+
+void buscarorand_destruir(BuscarOrAnd b) {
+    contacto_destruir(b->dato);
+    array_destruir(b->resultado);
+    free(b);
+}
+
+void contacto_buscar_or(void* c, void* extras) {
+    BuscarOrAnd buscar = (BuscarOrAnd) extras;
+    Contacto contacto = (Contacto) c;
+    int nombre = 0, apellido = 0, telefono = 0, edad = 0;
+    if (!strcmp(buscar->dato->nombre, contacto->nombre))
+        nombre++;
+    if (!strcmp(buscar->dato->apellido, contacto->apellido))
+        apellido++;
+    if (!strcmp(buscar->dato->telefono, contacto->telefono))
+        telefono++;
+    if (buscar->dato->edad == contacto->edad)
+        edad++;
+    if (nombre || apellido || telefono || edad)
+        array_insertar(buscar->resultado, contacto);
+}
+
+void contacto_buscar_and(void* c, void* extras) {
+    BuscarOrAnd buscar = (BuscarOrAnd) extras;
+    Contacto contacto = (Contacto) c;
+    int nombre = 0, apellido = 0, telefono = 0, edad = 0;
+    if (!strcmp(buscar->dato->nombre, "") || (!strcmp(buscar->dato->nombre, contacto->nombre)))
+        nombre++;
+    if (!strcmp(buscar->dato->apellido, "") || (!strcmp(buscar->dato->apellido, contacto->apellido)))
+        apellido++;
+    if (!strcmp(buscar->dato->telefono, "") || (!strcmp(buscar->dato->telefono, contacto->telefono)))
+        telefono++;
+    if (!buscar->dato->edad || buscar->dato->edad == contacto->edad)
+        edad++;
+    if (nombre && apellido && telefono && edad)
+        array_insertar(buscar->resultado, contacto);
 }
 
 Array suma_edades(Array array, unsigned sumaTotal) {
@@ -121,7 +170,7 @@ Array suma_edades(Array array, unsigned sumaTotal) {
     }
     return subConj;
 }
-
+/*
 int main(){
     AVL arbol = avl_crear(contacto_copia, contacto_comparar_nombre, contacto_destruir);
     Contacto c = contacto_crear("maxi", "nielsen", "3413190720",20);
@@ -175,3 +224,4 @@ int main(){
     avl_destruir(arbol);
     return 0;
 }
+*/

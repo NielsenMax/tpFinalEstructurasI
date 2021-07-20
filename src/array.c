@@ -18,9 +18,9 @@ Array array_crear(unsigned capacidad, FuncionCopiadora copia,
     return array;
 }
 
-int array_nelems(Array array) {return array->numElems;}
+unsigned array_nelems(Array array) {return array->numElems;}
 
-int array_capacidad(Array array) {return array->capacidad;}
+unsigned array_capacidad(Array array) {return array->capacidad;}
 
 void array_destruir(Array array) {
     for (unsigned i = 0; i < array->numElems; i++) {

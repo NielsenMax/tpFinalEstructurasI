@@ -29,6 +29,7 @@ void avl_destruir(AVL);
  */
 void* avl_buscar(AVL, void *);
 
+int avl_numero_nodos(AVL);
 /**
  * Inserta un dato no repetido en el arbol, manteniendo la propiedad de los
  * arboles AVL.

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 typedef struct _AVL_Nodo {
     void* dato;
@@ -58,6 +59,11 @@ static int avl_nodo_altura(AVL_Nodo* raiz) {
     return (raiz == NULL ? -1 : raiz->altura);
 }
 
+int avl_numero_nodos(AVL arbol) {
+    int altura = avl_nodo_altura(arbol->raiz);
+    return  altura == -1? -1 : pow(2, altura + 1);
+}
+
 static unsigned int avl_nodo_max_altura_hijos(AVL_Nodo* raiz) {
     assert(raiz);
     int alturaIzq = avl_nodo_altura(raiz->izq);
@@ -68,7 +74,7 @@ static unsigned int avl_nodo_max_altura_hijos(AVL_Nodo* raiz) {
 static int avl_nodo_factor_balance(AVL_Nodo* raiz) {
     assert(raiz);
     int factor = avl_nodo_altura(raiz->der) - avl_nodo_altura(raiz->izq);
-    //assert(-2 <= factor || factor <= 2);
+    assert(-2 <= factor || factor <= 2);
     return factor;
 }
 
@@ -154,16 +160,20 @@ static AVL_Nodo* avl_nodo_hijo_mas_izquierda(AVL_Nodo* raiz) {
 }
 
 static AVL_Nodo* avl_nodo_eliminar(AVL_Nodo* raiz, void* dato, FuncionComparadora comp, FuncionCopiadora copia,FuncionDestructora destr) {
-    if (!raiz) //raiz es null
+    if (raiz == NULL) //raiz es null
         return NULL;
     else if (!comp(dato, raiz->dato)) { //dato esta en raiz
         if (!raiz->izq) { //si el hijo izq es NULL tomo el der, si der es null devolvera NULL
             AVL_Nodo* hijoDer = raiz->der;
-            avl_nodo_destruir(raiz,destr);
+            //avl_nodo_destruir(raiz,destr);
+            destr(raiz->dato);
+            free(raiz);
             return hijoDer;
         } else if (!raiz->der) {
             AVL_Nodo* hijoIzq = raiz->izq;
-            avl_nodo_destruir(raiz,destr);
+            //avl_nodo_destruir(raiz,destr);
+            destr(raiz->dato);
+            free(raiz);
             return hijoIzq;
         } else {
             AVL_Nodo* nuevaRaiz = avl_nodo_hijo_mas_izquierda(raiz->der);
@@ -184,19 +194,19 @@ static AVL_Nodo* avl_nodo_eliminar(AVL_Nodo* raiz, void* dato, FuncionComparador
         }
     } else if (comp(dato, raiz->dato) < 0) {
         raiz->izq = avl_nodo_eliminar(raiz->izq, dato, comp, copia, destr);
-         if (avl_nodo_factor_balance(raiz) == -2) {
-            if (avl_nodo_factor_balance(raiz->izq) == 1)
-                raiz->izq = avl_nodo_rotacion_simple_izq(raiz->izq);
-            raiz = avl_nodo_rotacion_simple_der(raiz);
+         if (avl_nodo_factor_balance(raiz) == 2) {
+            if (avl_nodo_factor_balance(raiz->der) == -1)
+                raiz->der = avl_nodo_rotacion_simple_der(raiz->der);
+            raiz = avl_nodo_rotacion_simple_izq(raiz);
         }
         raiz->altura = 1 + avl_nodo_max_altura_hijos(raiz);
         return raiz;
     } else {
         raiz->der = avl_nodo_eliminar(raiz->der, dato, comp, copia, destr);
-        if (avl_nodo_factor_balance(raiz) == 2) {
-            if (avl_nodo_factor_balance(raiz->der) == -1)
-                raiz->der = avl_nodo_rotacion_simple_der(raiz->der);
-            raiz = avl_nodo_rotacion_simple_izq(raiz);
+        if (avl_nodo_factor_balance(raiz) == -2) {
+            if (avl_nodo_factor_balance(raiz->izq) == 1)
+                raiz->izq = avl_nodo_rotacion_simple_izq(raiz->izq);
+            raiz = avl_nodo_rotacion_simple_der(raiz);
         }
         raiz->altura = 1 + avl_nodo_max_altura_hijos(raiz);
         return raiz;
@@ -226,18 +236,25 @@ int avl_validar(AVL arbol) {
 }
 
 static void avl_nodo_recorrer(AVL_Nodo* raiz, AVLRecorrido orden, FuncionVisitanteExtra visita, void* extra) {
-    if (raiz) {
+    if (raiz != NULL) {
         if (orden == AVL_RECORRIDO_PRE)
             visita(raiz->dato, extra);
+        printf("(");
         avl_nodo_recorrer(raiz->izq, orden, visita, extra);
+
         if (orden == AVL_RECORRIDO_IN)
             visita(raiz->dato, extra);
+
         avl_nodo_recorrer(raiz->der, orden, visita, extra);
+         printf(")");
         if (orden == AVL_RECORRIDO_POST)
             visita(raiz->dato, extra);
     }
 }
 
 void avl_recorrer(AVL arbol, AVLRecorrido orden, FuncionVisitanteExtra visita, void* extra) {
+     // printf("Raiz: ");
+     // if (arbol->raiz)
+     //    visita(arbol->raiz->dato, NULL);
     avl_nodo_recorrer(arbol->raiz, orden, visita, extra);
 }
