@@ -136,7 +136,7 @@ int main() {
             scanf("%d", &accion);
         }
         accion_redirigir(accion, arbol, lista);
-        imprimir_lista_nodo(lista->prm);
+        //imprimir_lista_nodo(lista->prm);
         printf("Seleccione una accion:\n>");
         scanf("%d", &accion);
         getchar();

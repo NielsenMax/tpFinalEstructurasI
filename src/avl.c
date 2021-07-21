@@ -128,8 +128,10 @@ static AVL_Nodo* avl_nodo_insertar(AVL_Nodo* raiz, void* dato, FuncionCopiadora 
         }
         raiz->altura = 1 + avl_nodo_max_altura_hijos(raiz);
         return raiz;
-    } else {
-        raiz->dato = copia(dato);
+    }
+    else {
+        //destr(raiz->dato);
+        //raiz->dato = copia(dato);
         return raiz;
     }
 }
@@ -239,14 +241,14 @@ static void avl_nodo_recorrer(AVL_Nodo* raiz, AVLRecorrido orden, FuncionVisitan
     if (raiz != NULL) {
         if (orden == AVL_RECORRIDO_PRE)
             visita(raiz->dato, extra);
-        printf("(");
+        // printf("(");
         avl_nodo_recorrer(raiz->izq, orden, visita, extra);
 
         if (orden == AVL_RECORRIDO_IN)
             visita(raiz->dato, extra);
 
         avl_nodo_recorrer(raiz->der, orden, visita, extra);
-         printf(")");
+        //printf(")");
         if (orden == AVL_RECORRIDO_POST)
             visita(raiz->dato, extra);
     }
