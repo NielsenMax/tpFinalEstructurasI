@@ -91,12 +91,15 @@ void normalizar_string(char *string) {
       space = 0;
     }
   }
-  if (string[k - 1] == ' ')     //Elimina los espacios finales
+  if (k > 0 && string[k - 1] == ' ')     //Elimina los espacios finales
     string[--k] = '\0';
   else
     string[k] = '\0';
-  for (; *string; string++)
-      *string = tolower(*string);
+}
+
+void string_minusculas(char *string) {
+    for (; *string; string++)
+        *string = tolower(*string);
 }
 
 int contiene_coma(char *string) {
@@ -106,6 +109,8 @@ int contiene_coma(char *string) {
     }
     return 0;
 }
+
+int str_vacio(char* c) {return !strcmp(c, "");}
 
 void accion_buscar(AVL arbol) {
     char* nombre = NULL, *apellido = NULL;
@@ -150,11 +155,11 @@ void accion_buscar(AVL arbol) {
     free(apellido);
 }
 
-int str_vacio(char* c) {return !strcmp(c, "");}
+
 
 void accion_agregar(AVL arbol, Lista lista) {
     char* nombre = NULL, *apellido = NULL, *telefono = NULL;
-    int edad = -1;
+    unsigned edad = 0;
     while (!nombre) {
         printf("Ingrese un nombre:\n>");
         nombre = leer();
@@ -181,15 +186,15 @@ void accion_agregar(AVL arbol, Lista lista) {
         else if (str_vacio(apellido))
             printf("El dato no puede estar vacio\n");
     }
-    while (edad < 0) {
+    while (!edad) {
         printf("Ingrese la edad:\n>");
         scanf("%i", &edad);
         getchar();
-        if (edad < 0) {
-            printf("La edad no puede ser negativo\n");
+        if (!edad) {
+            printf("La edad no puede ser cero\n");
         }
     }
-    while (!nombre) {
+    while (!telefono) {
         printf("Ingrese el telefono:\n");
         telefono = leer();
         normalizar_string(telefono);
@@ -255,87 +260,168 @@ void accion_eliminar(AVL arbol, Lista lista) {
 }
 
 void accion_editar(AVL arbol, Lista lista) {
-    char* nombre, *apellido;
-    printf("Ingrese un nombre:\n>");
-    nombre = leer();
-    printf("Ingrese un apellido:\n>");
-    apellido = leer();
-    if (!nombre || !apellido)
-        printf("Uno de los datos no es valido\n");
-    else {
-        Contacto c = contacto_crear(nombre, apellido, "", 0);
-        Contacto r = avl_buscar(arbol, c);
-        if (r) {
-            unsigned edad;
-            char* telefono;
-            Accion a = accion_crear(r, "", EDITAR);
-            lista_insertar(lista, a);
-            accion_destruir(a);
-            printf("El contacto contiene los siguientes datos:\n");
-            printf("Nombre: %s\nApellido: %s\nEdad: %d\nTelefono: %s\n", r->nombre, r->apellido, r->edad, r->telefono);
-            printf("Ingrese la nueva edad:\n>");
-            scanf("%u", &edad);
-            getchar();
-            printf("Ingrese el nuevo telefono:\n>");
+    char* nombre = NULL, *apellido = NULL;
+    while (!nombre) {
+        printf("Ingrese un nombre:\n>");
+        nombre = leer();
+        normalizar_string(nombre);
+        if (contiene_coma(nombre)) {
+            printf("El nombre no puede contener comas.\n");
+            free(nombre);
+            nombre = NULL;
+        } else if (!nombre)
+            printf("El dato es invalido\n");
+        else if (str_vacio(nombre))
+            printf("El dato no puede estar vacio\n");
+    }
+    while (!apellido) {
+        printf("Ingrese un apellido:\n>");
+        apellido = leer();
+        normalizar_string(apellido);
+        if (contiene_coma(apellido)) {
+            printf("El apellido no puede contener comas.\n");
+            free(apellido);
+            apellido = NULL;
+        } else if (!apellido)
+            printf("El dato es invalido\n");
+        else if (str_vacio(apellido))
+            printf("El dato no puede estar vacio\n");
+    }
+    Contacto c = contacto_crear(nombre, apellido, "", 0);
+    Contacto r = avl_buscar(arbol, c);
+    if (r) {
+        unsigned edad = 0;
+        char* telefono = NULL;
+        Accion a = accion_crear(r, "", EDITAR);
+        lista_insertar(lista, a);
+        accion_destruir(a);
+        printf("\nEl contacto contiene los siguientes datos:\n");
+        printf("Nombre: %s\nApellido: %s\nEdad: %d\nTelefono: %s\n", r->nombre, r->apellido, r->edad, r->telefono);
+        //printf("\nIngrese la nueva edad:\n>");
+
+        while (!edad) {
+        printf("Ingrese la nueva edad:\n>");
+        scanf("%i", &edad);
+        getchar();
+        if (!edad)
+            printf("La edad no puede ser cero\n");
+        }
+        while (!telefono) {
+            printf("Ingrese el nuevo telefono:\n");
             telefono = leer();
-            r->edad = edad;
-            strcpy(r->telefono, telefono);
-            free(telefono);
+            normalizar_string(telefono);
+            if (contiene_coma(telefono)) {
+                printf("El telefono no puede contener comas.\n");
+                free(telefono);
+                telefono = NULL;
+            } else if (!telefono)
+                printf("El dato es invalido\n");
+            else if (str_vacio(telefono))
+                printf("El dato no puede estar vacio\n");
+        }
+
+        // scanf("%u", &edad);
+        // getchar();
+        // printf("Ingrese el nuevo telefono:\n>");
+        // telefono = leer();
+        r->edad = edad;
+        strcpy(r->telefono, telefono);
+        free(telefono);
         } else
             printf("No existe un contacto con ese nombre y apellido\n");
         contacto_destruir(c);
         free(nombre);
         free(apellido);
-    }
 }
 
 void accion_cargar(AVL arbol, Lista lista) {
-    printf("Ingrese el archivo de entrada:\n>");
-    char* input = leer();
+    char* input = NULL;
+    while (!input) {
+        printf("Ingrese el archivo de entrada:\n>");
+        input = leer();
+        if (!input) {
+            printf("El ingreso no es valido\n");
+        } else if (access(input, F_OK)) {
+            printf("La ruta ingresada no existe o no el programa no puede acceder a ella\n");
+            free(input);
+            input = NULL;
+        }
+    }
     //printf("nombreee: %s", input);
     //FILE* archivo = fopen(input, "r");
-    if (!input)
-        printf("Ingreso invalido");
-    else {
-        if (!access(input, F_OK)) {
+
             //printf("%s", input);
-            cargar_contactos_avl(arbol, input);
-            Accion a = accion_crear(NULL, input, CARGAR);
-            lista_insertar(lista, a);
-            accion_destruir(a);
-        } else
-            printf("No existe un archivo con ese nombre\n");
-        free(input);
-    }
+    cargar_contactos_avl(arbol, input);
+    Accion a = accion_crear(NULL, input, CARGAR);
+    lista_insertar(lista, a);
+    accion_destruir(a);
+    free(input);
 }
 
 void accion_guardar(AVL arbol) {
-    printf("Ingrese ruta de salida:\n>");
-    char* input = leer();
+    char* input = NULL;
+    while (!input) {
+        printf("Ingrese el archivo de salida:\n>");
+        input = leer();
+        if (!input) {
+            printf("El ingreso no es valido\n");
+        }
+    }
     //FILE* archivo = fopen(input, "r");
-    if (!input)
-        printf("Ingreso invalido");
-    else {
         guardar_contactos_avl(arbol, input);
         free(input);
-    }
 }
 
 void accion_and_or(AVL arbol, unsigned t) {
-    char* nombre, *apellido, *telefono;
+    char* nombre = NULL, *apellido = NULL, *telefono = NULL;
     unsigned edad = 0;
-    printf("Ingrese el nombre:\n>");
-    nombre = leer();
-    printf("Ingrese el apellido:\n>");
-    apellido = leer();
-    printf("Ingrese la edad(si no quiere buscar por edad ingrese 0):\n>");
-    scanf("%u", &edad);
-    getchar();
-    printf("Ingrese el telefono:\n");
-    telefono = leer();
-    if (!nombre || !apellido || !telefono) {
-        printf("Uno de los datos no es valido\n");
-    } else if (str_vacio(nombre) && str_vacio(apellido) && str_vacio(telefono) && !edad) {
+    while (!nombre) {
+        printf("Ingrese un nombre (oprima enter si no quiere buscar por nombre):\n>");
+        nombre = leer();
+        normalizar_string(nombre);
+        if (contiene_coma(nombre)) {
+            printf("El nombre no puede contener comas.\n");
+            free(nombre);
+            nombre = NULL;
+        } else if (!nombre)
+            printf("El dato es invalido\n");
+    }
+    while (!apellido) {
+        printf("Ingrese un apellido:\n>");
+        apellido = leer();
+        normalizar_string(apellido);
+        if (contiene_coma(apellido)) {
+            printf("El apellido no puede contener comas.\n");
+            free(apellido);
+            apellido = NULL;
+        } else if (!apellido)
+            printf("El dato es invalido\n");
+    }
+        printf("Ingrese la edad (si no quiere buscar por edad ingrese 0):\n>");
+        scanf("%u", &edad);
+        getchar();
+    while (!telefono) {
+        printf("Ingrese el telefono:\n");
+        telefono = leer();
+        normalizar_string(telefono);
+        if (contiene_coma(telefono)) {
+            printf("El telefono no puede contener comas.\n");
+            free(telefono);
+            telefono = NULL;
+        } else if (!telefono)
+            printf("El dato es invalido\n");
+    }
+
+    // printf("Ingrese el nombre:\n>");
+    // nombre = leer();
+    // printf("Ingrese el apellido:\n>");
+    // apellido = leer();
+    // printf("Ingrese la edad(si no quiere buscar por edad ingrese 0):\n>");
+    // scanf("%u", &edad);
+    // getchar();
+    // printf("Ingrese el telefono:\n");
+    // telefono = leer();
+    if (str_vacio(nombre) && str_vacio(apellido) && str_vacio(telefono) && !edad) {
         printf("Al menos uno de los parametros tiene que no ser nulo\n");
     } else {
             Contacto c = contacto_crear(nombre, apellido, telefono, edad);
@@ -360,17 +446,33 @@ void accion_and_or(AVL arbol, unsigned t) {
 }
 
 void accion_guardar_ordenado(AVL arbol) {
-    printf("Ingrese ruta de salida:\n>");
-    char* input = leer();
+    // printf("Ingrese ruta de salida:\n>");
+    // char* input = leer();
     //FILE* archivo = fopen(input, "r");
-    if (!input)
-        printf("Ingreso invalido");
-    else {
-        printf("Ingrese nombre de atributo:\n>");
-        char* atributo = leer();
+    char* input = NULL;
+    while (!input) {
+        printf("Ingrese el archivo de salida:\n>");
+        input = leer();
+        if (!input) {
+            printf("El ingreso no es valido\n");
+        }
+    }
+    // printf("Ingrese nombre de atributo:\n>");
+    // char* atributo = leer();
+    char* atributo = NULL;
+    while (!atributo) {
+        printf("Ingrese el campo a ordenar por:\n>");
+        atributo = leer();
+        normalizar_string(atributo);
+        string_minusculas(atributo);
         if (!atributo) {
-            printf("Ingreso invalido");
-        } else {
+            printf("El ingreso no es valido\n");
+        } else if (strcmp("nombre", atributo) && strcmp("apellido", atributo) && strcmp("telefono", atributo) && strcmp("edad", atributo)) {
+            printf("El atributo solo puede ser nombre, apellido, telefono o edad\n");
+            free(atributo);
+            atributo = NULL;
+        }
+    }
             if (!strcmp("nombre", atributo)) {
                 guardar_contactos_avl(arbol, input);
             } else if (!strcmp("apellido", atributo)) {
@@ -392,10 +494,9 @@ void accion_guardar_ordenado(AVL arbol) {
                 printf("No es un atributo valido\n");
             }
             free(atributo);
-        }
         free(input);
     }
-}
+
 
 void accion_buscar_suma_edades (AVL arbol) {
     Array array = array_crear(avl_numero_nodos(arbol), contacto_copia, contacto_destruir);
