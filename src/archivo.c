@@ -5,7 +5,12 @@
 #include "contacto.h"
 #include "avl.h"
 
-void avl_insertar_linea(AVL arbol, char* buffer) {
+/**
+ *avl_insertar_linea :: AVL -> char* -> void
+ *Funcion estatica que toma un arbol AVL y un string que corresponde
+ *a un contacto en formato CSV. Insertara el contacto en el arbol AVL.
+*/
+static void avl_insertar_linea(AVL arbol, char* buffer) {
     char* nombre, *apellido, *telefono = NULL;
     unsigned edad;
     nombre = strsep(&buffer, ",");
@@ -19,6 +24,11 @@ void avl_insertar_linea(AVL arbol, char* buffer) {
     }
 }
 
+/**
+ *cargar_contactos_avl :: AVL -> char* -> void
+ *Toma un arbol AVL y un string que representara un archivo CSV de contactos.
+ *Luego insertara los contactos del archivo en el arbol.
+*/
 void cargar_contactos_avl(AVL arbol, char* a) {
     //printf("HOLAAAA%s",  a);
     FILE* archivo = fopen(a, "r");
@@ -61,7 +71,12 @@ void cargar_contactos_avl(AVL arbol, char* a) {
     }
 }
 
-void avl_eliminar_linea(AVL arbol, char* buffer) {
+/**
+ *avl_eliminar_linea :: AVL -> char* -> void
+ *Funcion estatica que toma un arbol AVL y un string que representara
+ *un contacto en formato CSV. Luego elimina el contacto del arbol AVL.
+*/
+static void avl_eliminar_linea(AVL arbol, char* buffer) {
     char* nombre, *apellido;
     nombre = strsep(&buffer, ",");
     apellido = strsep(&buffer, ",");
@@ -76,6 +91,11 @@ void avl_eliminar_linea(AVL arbol, char* buffer) {
     }
 }
 
+/**
+ *eliminar_contactos_avl :: AVL -> char* -> void
+ *Toma un arbol AVL y un string que representara un archivo CSV de contactos.
+ *Luego elimina los contactos del arbol AVL.
+*/
 void eliminar_contactos_avl(AVL arbol, char* a) {
     FILE* archivo = fopen(a, "r");
     if (archivo) {
@@ -117,12 +137,24 @@ void eliminar_contactos_avl(AVL arbol, char* a) {
     }
 }
 
-void escribir_contacto_avl(void* c, void* f) {
+/**
+ *escribir_contacto_avl :: void* -> void* -> void
+ *Funcion estatica que toma un puntero a void que represntara un contacto
+ *y otro que sera un puntero FILE. Luego escribira el contacto en formato
+ *CSV en el archivo.
+*/
+static void escribir_contacto_avl(void* c, void* f) {
     FILE* archivo = (FILE*) f;
     Contacto contacto = (Contacto) c;
     fprintf(archivo, "%s,%s,%d,%s\n", contacto->nombre, contacto->apellido, contacto->edad, contacto->telefono);
 }
 
+/**
+ *guardar_contactos_avl :: AVL -> char* -> void
+ *Toma un arbol AVL y un string que sera la ruta de un archivo.
+ *Luego escribira en el archivo todos los contactos del arbol en formato CSV
+ *recorriendolo de forma inorden.
+*/
 void guardar_contactos_avl(AVL arbol, char* c) {
     FILE* archivo = fopen(c, "w");
     if (archivo) {
