@@ -30,8 +30,9 @@ void menu() {
 }
 
 int main() {
-  AVL arbol = avl_crear(contacto_copia, contacto_comparar_nombre,
-                        contacto_destruir);
+  AVL arbol =
+      avl_crear(contacto_copia, contacto_comparar_nombre,
+                contacto_destruir);
   Lista lista = lista_crear(MAX_ACCIONES, accion_copia, accion_destruir);
   int accion;
   menu();

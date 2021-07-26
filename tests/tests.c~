@@ -36,8 +36,9 @@ void test_avl() {
   printf("TESTEANDO FUNCIONES DE avl.h\n");
   {
     printf("TESTEANDO FUNCION avl_insertar\n");
-    AVL arbol = avl_crear(copiar_puntero_entero, comparar_puntero_entero,
-                          destruir_puntero_entero);
+    AVL arbol =
+        avl_crear(copiar_puntero_entero, comparar_puntero_entero,
+                  destruir_puntero_entero);
     for (int i = 0; i < 500; ++i) {
       int i = rand() % 1000;
       avl_insertar(arbol, &i);
@@ -47,8 +48,9 @@ void test_avl() {
   }
   {
     printf("TESTEANDO FUNCION avl_buscar\n");
-    AVL arbol = avl_crear(copiar_puntero_entero, comparar_puntero_entero,
-                          destruir_puntero_entero);
+    AVL arbol =
+        avl_crear(copiar_puntero_entero, comparar_puntero_entero,
+                  destruir_puntero_entero);
     int numeros[] = { 23, 56, 78, 21, 2, 35, 49, 64 };
     for (int i = 0; i < 8; i++)
       avl_insertar(arbol, numeros + i);
@@ -61,8 +63,9 @@ void test_avl() {
   }
   {
     printf("TESTEANDO FUNCION avl_recorrer\n");
-    AVL arbol = avl_crear(copiar_puntero_entero, comparar_puntero_entero,
-                          destruir_puntero_entero);
+    AVL arbol =
+        avl_crear(copiar_puntero_entero, comparar_puntero_entero,
+                  destruir_puntero_entero);
     int numeros[] = { 23, 56, 78, 21, 2, 35, 49, 64 };
     for (int i = 0; i < 8; i++)
       avl_insertar(arbol, numeros + i);
@@ -260,8 +263,9 @@ static void test_contacto() {
   }
   {
     printf("TESTEANDO FUNCION contacto_agregar_avl\n");
-    AVL arbol = avl_crear(contacto_copia, contacto_comparar_nombre,
-                          contacto_destruir);
+    AVL arbol =
+        avl_crear(contacto_copia, contacto_comparar_nombre,
+                  contacto_destruir);
     Contacto a = contacto_crear("a", "b", "1", 10);
     contacto_agregar_avl(a, arbol);
     Contacto b = avl_buscar(arbol, a);

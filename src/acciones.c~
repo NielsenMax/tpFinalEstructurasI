@@ -87,7 +87,7 @@ char *leer() {
  *Ademas elimina todos los espacios al principio y al final.
 */
 void normalizar_string(char *string) {
-  int space = 0;                //1 si se encuentra un espacio 0 si es cualquier otro caracter
+  int space = 0; //1 si se encuentra un espacio 0 si es cualquier otro caracter
   int k = 0;                    //apunta a la siguiente posicion libre
   for (int i = 0; string[i]; i++) {
 //Elimina los espacios al inicio
@@ -399,9 +399,9 @@ static void accion_editar(AVL arbol, Lista lista) {
       } else if (!telefono)
         printf("El dato es invalido\n");
       else if (str_vacio(telefono)) {
-        printf("El dato no puede estar vacio\n");
-        free(telefono);
-        telefono = NULL;
+      printf("El dato no puede estar vacio\n");
+      free(telefono);
+      telefono = NULL;
       }
     }
     r->edad = edad;
@@ -582,14 +582,16 @@ static void accion_guardar_ordenado(AVL arbol) {
     guardar_contactos_avl(arbol_apellido, input);
     avl_destruir(arbol_apellido);
   } else if (!strcmp("telefono", atributo)) {
-    AVL arbol_tel = avl_crear(contacto_copia, contacto_comparar_telefono,
-                              contacto_destruir);
+    AVL arbol_tel =
+        avl_crear(contacto_copia, contacto_comparar_telefono,
+                  contacto_destruir);
     avl_recorrer(arbol, 0, contacto_agregar_avl, arbol_tel);
     guardar_contactos_avl(arbol_tel, input);
     avl_destruir(arbol_tel);
   } else if (!strcmp("edad", atributo)) {
-    AVL arbol_edades = avl_crear(contacto_copia, contacto_comparar_edad,
-                                 contacto_destruir);
+    AVL arbol_edades =
+        avl_crear(contacto_copia, contacto_comparar_edad,
+                  contacto_destruir);
     avl_recorrer(arbol, 0, contacto_agregar_avl, arbol_edades);
     guardar_contactos_avl(arbol_edades, input);
     avl_destruir(arbol_edades);
@@ -607,8 +609,9 @@ static void accion_guardar_ordenado(AVL arbol) {
  *del arbol que la suma de sus edades sea igual al natural ingresado.
 */
 static void accion_buscar_suma_edades(AVL arbol) {
-  Array array = array_crear(avl_numero_nodos(arbol), contacto_copia,
-                            contacto_destruir);
+  Array array =
+      array_crear(avl_numero_nodos(arbol), contacto_copia,
+                  contacto_destruir);
   avl_recorrer(arbol, 0, contacto_agregar_array, array);
   printf("Ingrese un natural:\n>");
   unsigned edad;

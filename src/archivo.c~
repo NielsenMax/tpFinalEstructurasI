@@ -14,19 +14,19 @@ static void avl_insertar_linea(AVL arbol, char *buffer) {
   char *nombre, *apellido, *telefono = NULL;
   unsigned edad, comas = 0;
   for (int i = 0; buffer[i]; i++) {
-    if (buffer[i] == ',')
-      comas++;
-  }
+          if (buffer[i] == ',')
+              comas++;
+      }
   if (comas == 3) {
-    nombre = strsep(&buffer, ",");
-    apellido = strsep(&buffer, ",");
-    edad = atoi(strsep(&buffer, ","));
-    telefono = strsep(&buffer, "\n");
-    if (nombre && apellido && edad && telefono) {
-      Contacto c = contacto_crear(nombre, apellido, telefono, edad);
-      avl_insertar(arbol, c);
-      contacto_destruir(c);
-    }
+  nombre = strsep(&buffer, ",");
+  apellido = strsep(&buffer, ",");
+  edad = atoi(strsep(&buffer, ","));
+  telefono = strsep(&buffer, "\n");
+  if (nombre && apellido && edad && telefono) {
+    Contacto c = contacto_crear(nombre, apellido, telefono, edad);
+    avl_insertar(arbol, c);
+    contacto_destruir(c);
+  }
   }
 }
 
@@ -46,37 +46,37 @@ void cargar_contactos_avl(AVL arbol, char *a) {
     if (lineaT != -1) {
       linea = buffer;           //evita memory leaks
       for (int i = 0; buffer[i]; i++) {
-        if (buffer[i] == ',')
-          comas++;
+          if (buffer[i] == ',')
+              comas++;
       }
       if (comas == 3) {
-        nombre = strcmp(strsep(&buffer, ","), "nombre");
-        apellido = strcmp(strsep(&buffer, ","), "apellido");
-        edad = strcmp(strsep(&buffer, ","), "edad");
-        telefono = strcmp(strsep(&buffer, "\n"), "telefono");
-        if (nombre || apellido || edad || telefono) {
-          free(linea);
-          printf("El archivo no contiene el formato correcto.\n");
-          fclose(archivo);
-          archivo = NULL;
-        } else {
+      nombre = strcmp(strsep(&buffer, ","), "nombre");
+      apellido = strcmp(strsep(&buffer, ","), "apellido");
+      edad = strcmp(strsep(&buffer, ","), "edad");
+      telefono = strcmp(strsep(&buffer, "\n"), "telefono");
+      if (nombre || apellido || edad || telefono) {
+        free(linea);
+        printf("El archivo no contiene el formato correcto.\n");
+        fclose(archivo);
+        archivo = NULL;
+      } else {
+        free(linea);
+        buffer = NULL;
+        lineaT = getline(&buffer, &bufferT, archivo);
+        linea = buffer;
+        while (lineaT >= 0) {
+          if(strcmp(buffer, "\n"))
+            avl_insertar_linea(arbol, buffer);
           free(linea);
           buffer = NULL;
           lineaT = getline(&buffer, &bufferT, archivo);
           linea = buffer;
-          while (lineaT >= 0) {
-            if (strcmp(buffer, "\n"))
-              avl_insertar_linea(arbol, buffer);
-            free(linea);
-            buffer = NULL;
-            lineaT = getline(&buffer, &bufferT, archivo);
-            linea = buffer;
-          }
-          free(linea);
         }
-      } else {
         free(linea);
-        printf("El archivo no contiene el formato correcto.\n");
+      }
+      } else {
+          free(linea);
+          printf("El archivo no contiene el formato correcto.\n");
       }
     }
     if (archivo)

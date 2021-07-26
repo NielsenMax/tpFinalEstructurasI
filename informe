@@ -3,7 +3,7 @@ Informe trabajo final de Maximiliano Nielsen. 26/7/2021.
 * Modulos:
 
 El programa se encuentra dividido en dos carpetas, src y tests. En src se encontrara
-todo el codigo del programa en si y tests se encuentran los tests para el mismo.
+todo el codigo del programa en si y en tests se encuentran los tests para el mismo.
 
 En la carpeta src encontraremos los distintos modulos del programa:
   -avl.h: Contiene una implementacion de arboles avl que sera usada como la agenda.
@@ -19,7 +19,7 @@ En la carpeta src encontraremos los distintos modulos del programa:
   -contacto.h: Contiene la estructura que representara a un contacto y las
    funciones principales que los manipulen.
    Tambien incluye la solucion al problema de la suma de edades.
-  -acciones.h: Contiene la estrucutra que represntara una accion en el
+  -acciones.h: Contiene la estrucutra que representara una accion en el
    programa, es decir la que se usara para poder deshacer y rehacer.
    Tambien controla casi todas las inputs del usuario y la logica para hacer
    uso de las funciones de contacto.h.
@@ -53,9 +53,13 @@ doblemente enlazada con dos punteros, uno al primer elemento y otro al
 actual. Esta estrucutura me parecio ideal ya que permitia moverme entre las
 acciones realizadas de forma simple ademas de poder redimensionarse facilmente
 a la hora de insertar un elemento luego de deshacer algunas acciones.
-Para deshacer la primer acciones a la lista se le incluye un nodo sin dato para
-poder usarse como primero y actual, que luego se elimina al rehacer o insertar
-un nuevo elemento.
+Al deshacer la primera accion de la lista el puntero actual pasara a ser NULL.
+Tambien resultaba sencillo el hecho de eleminar elementos cuando excediamos
+la capacidad maxima de la lista.
+
+Para la solucion del problema de la suma de edades use un array de tamaño fijo.
+Este permite insertar elementos en la ultima posicon que tenga libre y la busqueda
+de elementos por indexacion.
 
 * Algoritmos:
 
@@ -81,8 +85,9 @@ por nombre y las demas. Para guardar ordenado por nombre simplemente recorro
 el arbol de agenda en una DFS en inorden. Si bien los datos estan almacenados
 primero por comparar el nombre y luego por comparar el apellido, los datos
 con el mismo nombre seran hijos/padres/hermanos entre ellos y por lo tanto
-que eran un "cluster" al recorrer el arbol. Para escribir sobre el archivo,
-hago que lo haga la funcion visitante que recorre el arbol.
+apareceran seguidos en el archivo luego de recorrer el arbol. 
+Para escribir sobre el archivo, hago que lo haga la funcion visitante que recorre
+el arbol.
 Para la segunda parte del problema use un algortimo parecido. Recorri todo
 el arbol almacenando los contactos en un nuevo arbol AVL pero ordenado por
 el atributo que nos interesaba. En el caso de ordenar por apellido primero
@@ -95,10 +100,11 @@ Luego de generar el nuevo arbol lo recorro en inorden y lo guardo al archivo.
 Para poder resolver este problema aplique una solucion de programacion dinamica
 del tipo  bottom-up.
 Esta se basa en la idea de que para poder generar el numero j usando el numero
-i tenemos que poder generar el numero j - i > 0. Para esto genero una matriz
-de enteros de dimensiones  m+1 (cantidad de elementos mas uno) por n+1
-(suma a encontrar mas uno). Llamaremos A al conjunto de todos los elementos
-a evaluar y A[i] significa el elemento i de A.
+i tenemos que poder generar el numero j - i > 0 previamente.
+Para esto genero una matriz de enteros de dimensiones  
+m+1 (cantidad de elementos mas uno) por n+1 (suma a encontrar mas uno).
+Llamaremos A al conjunto de todos los elementos a evaluar y
+A[i] significa el elemento i de A.
 La primer columna de esta matriz seran todos
 valores True(1) y la primer fila seran todos valores False(0).
 Para rellenar la matriz empezaremos recorriendo desde la casilla (1,1)
@@ -107,7 +113,7 @@ si la casilla (i,j) tiene que ser True o False veremos lo siguiente:
   -Si la casilla encima de esta es True la nuestra tambien, dado que
    ya habiamos calculado que el valor j se podia construir.
   -Si la casilla (i-1, j - A[i-1]) tiene un True la nuestra tambien.
-   usamos A[i-1] ya que i esta desfasado por 1 con respecto a la cantidad
+   Usamos A[i-1] ya que i esta desfasado por 1 con respecto a la cantidad
    de elementos de A.
    Que (i - 1, j - A[i-1]) sea True siginifica que podemos construir al valor
    j - A[i-1] y por lo tanto al sumarle A[i-1] obtenemos a j como queriamos.
@@ -120,7 +126,7 @@ a (i-1,j-A[i-1]) y repetimos el proceso hasta llegar a la primer columna.
 
 * Dificultades:
 
-La mayor dificultad fue decir que estrucutura usar para poder almacenar los
+La mayor dificultad fue decidir que estrucutura usar para poder almacenar los
 contactos ya que una tabla hash y un arbol AVL me parecian ambas buenas
 opciones. Pero finalmente me decidi por el AVL ya que estaba ordenado.
 Despues tuve problemas con la eliminacion de nodos del AVL ya que no me
@@ -128,8 +134,8 @@ habia percatado que el balanceo al eliminar es lo opuesto a insertar, ya
 que insertar en el subarbol izquierdo es similar a eliminar del derecho a la
 hora de balancear.
 Luego otro problema menor fue leer de a lineas del archivo ya que la funcion
-getline no me reservaba la memoria necesaria cuando le reusaba un puntero
-que no apnte a NULL. Pero esto lo soluciones leyendo la documentacion de C
+getline no me reservaba la memoria necesaria cuando reusaba un puntero
+que no apunte a NULL. Pero esto lo soluciones leyendo la documentacion de C
 y viendo que si el puntero era NULL la funcion reservaba la memoria necesaria.
 
 * Compilado y ejecucion:

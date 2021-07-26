@@ -89,30 +89,30 @@ static NodoLista *lista_nodo_insertar(NodoLista * ult, void *dato,
  *se libera el primer elemento de la lista.
 */
 void lista_insertar(Lista lista, void *dato) {
-  if (lista->capacidad) {       //por si la capacidad es 0
-    if (lista->act == NULL) {   //Podria haber acciones a rehacer
-      if (lista->prm) {         //Si las hay las eliminamos
-        lista_nodo_destruir(lista->prm, lista->destr);
-        lista->prm = NULL;
-        lista->nNodos = 0;
+    if (lista->capacidad) { //por si la capacidad es 0
+        if (lista->act == NULL) {//Podria haber acciones a rehacer
+            if (lista->prm) {//Si las hay las eliminamos
+              lista_nodo_destruir(lista->prm, lista->destr);
+              lista->prm = NULL;
+              lista->nNodos = 0;
+          }
+      } else {
+            if (lista->act->sig) {//vemos si hay acciones a rehacer
+              lista_nodo_destruir(lista->act->sig, lista->destr);
+              lista->act->sig = NULL;
+              lista->nNodos = lista_largo(lista);
+          }
       }
-    } else {
-      if (lista->act->sig) {    //vemos si hay acciones a rehacer
-        lista_nodo_destruir(lista->act->sig, lista->destr);
-        lista->act->sig = NULL;
-        lista->nNodos = lista_largo(lista);
-      }
-    }
-    lista->act = lista_nodo_insertar(lista->act, dato, lista->copia);
-    lista->nNodos++;
-    if (!lista->prm)            //si prm es null lo ponemos en el elemento actual
-      lista->prm = lista->act;
-    if (lista->nNodos > lista->capacidad) {     //Si nos pasamos de capacidad
-      NodoLista *aux = lista->prm->sig; //eliminamos el primero
-      lista->destr(lista->prm->dato);
-      free(lista->prm);
-      lista->prm = aux;
-      lista->nNodos--;
+      lista->act = lista_nodo_insertar(lista->act, dato, lista->copia);
+      lista->nNodos++;
+      if (!lista->prm) //si prm es null lo ponemos en el elemento actual
+          lista->prm = lista->act;
+      if (lista->nNodos > lista->capacidad) {//Si nos pasamos de capacidad
+          NodoLista *aux = lista->prm->sig; //eliminamos el primero
+          lista->destr(lista->prm->dato);
+          free(lista->prm);
+          lista->prm = aux;
+          lista->nNodos--;
     }
   }
 }
@@ -142,11 +142,11 @@ void *lista_anterior(Lista lista) {
  *Si la lista esta vacia o no tiene un nodo siguiente devuelve NULL.
 */
 void *lista_siguiente(Lista lista) {
-  if (lista->act) {
-    lista->act = lista->act->sig;
-    return lista->act ? lista->act->dato : NULL;
-  } else {
-    lista->act = lista->prm;
-    return lista->act ? lista->act->dato : NULL;
-  }
+    if (lista->act) {
+        lista->act = lista->act->sig;
+        return lista->act ? lista->act->dato : NULL;
+    } else {
+        lista->act = lista->prm;
+        return lista->act ? lista->act->dato : NULL;
+    }
 }

@@ -36,3 +36,11 @@ lista.o: ./src/lista.h ./src/lista.c
 
 avl.o: ./src/avl.h ./src/avl.c
 	$(CC) $(CFLAGS) -c ./src/avl.c -lm
+
+indent:
+	indent -kr -brf -i2 -nut ./src/*.c 
+	indent -kr -brf -i2 -nut ./src/*.h
+	indent -kr -brf -i2 -nut ./tests/*.c 
+
+clean:
+	rm	*.o

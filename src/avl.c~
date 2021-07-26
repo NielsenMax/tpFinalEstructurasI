@@ -274,7 +274,7 @@ static int avl_nodo_validar_abb(AVL_Nodo * raiz, void *min, void *max,
 static AVL_Nodo *avl_nodo_hijo_mas_izquierda(AVL_Nodo * raiz) {
   if (!raiz)
     return NULL;
-  if (!raiz->izq)               //Si su hijo izquierdo es NULL no se puede ir mas a la izq
+  if (!raiz->izq)     //Si su hijo izquierdo es NULL no se puede ir mas a la izq
     return raiz;
   else
     return avl_nodo_hijo_mas_izquierda(raiz->izq);
