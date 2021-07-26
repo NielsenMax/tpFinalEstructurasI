@@ -10,18 +10,15 @@
 #include <unistd.h>
 
 /**
- *accion_crear :: Contacto -> char* -> AccionTipo -> void*
- *Toma un contacto, un string y un natural de AccionTipo.
- *Luego crea una accion con el contacto como el pasado, el archivo como el
- *string pasado y el tipo como el natural pasado. Luego devuelve la accion
+ *accion_crear :: Contacto -> AccionTipo -> void*
+ *Toma un contacto y un natural de AccionTipo.
+ *Luego crea una accion con el contacto como el pasado
+ *y el tipo como el natural pasado. Luego devuelve la accion
  *como un puntero a void.
 */
-void* accion_crear(Contacto c, char* archivo, AccionTipo n) {
+void* accion_crear(Contacto c, AccionTipo n) {
     Accion nueva = malloc(sizeof(struct _Contacto));
     assert(nueva);
-    nueva->archivo = malloc(sizeof(char) * (strlen(archivo) + 1));
-    assert(nueva->archivo);
-    strcpy(nueva->archivo, archivo);
     if (c)
         nueva->contacto = contacto_copia(c);
     else
@@ -37,7 +34,7 @@ void* accion_crear(Contacto c, char* archivo, AccionTipo n) {
 */
 void* accion_copia(void* a) {
     Accion accion = (Accion) a;
-    return accion_crear(accion->contacto, accion->archivo, accion->tipo);
+    return accion_crear(accion->contacto, accion->tipo);
 }
 
 /**
@@ -48,7 +45,7 @@ void* accion_copia(void* a) {
 void accion_destruir(void* a) {
     if (a) {
         Accion accion = (Accion) a;
-        free(accion->archivo);
+        //free(accion->archivo);
         if (accion->contacto)
             contacto_destruir(accion->contacto);
         free(a);
@@ -113,7 +110,7 @@ void normalizar_string(char *string) {
         space = 1;
       }
     } else {
-//Guardamos el caraccter si no es un espacio y marcamos la flag
+//Guardamos el caracter si no es un espacio y marcamos la flag
       string[k++] = string[i];
       space = 0;
     }
@@ -203,7 +200,7 @@ static void accion_buscar(AVL arbol) {
  *Luego pide que se ingrese los datos de un contacto por
  *teclado e inserta un contacto creado con esos datos en el arbol AVL.
  *Ademas inserta una accion del tipo AGREGAR, con el contacto igual al
- *insertado en el arbol y el archivo igual a "", en la lista pasada.
+ *insertado en el arbol, en la lista pasada.
 */
 static void accion_agregar(AVL arbol, Lista lista) {
     char* nombre = NULL, *apellido = NULL, *telefono = NULL;
@@ -257,7 +254,7 @@ static void accion_agregar(AVL arbol, Lista lista) {
     }
     Contacto c = contacto_crear(nombre, apellido, telefono, edad);
     avl_insertar(arbol, c);
-    Accion a = accion_crear(c, "", AGREGAR);
+    Accion a = accion_crear(c, AGREGAR);
     lista_insertar(lista, a);
     contacto_destruir(c);
     accion_destruir(a);
@@ -271,8 +268,8 @@ static void accion_agregar(AVL arbol, Lista lista) {
  *Funcion estatica que toma un arbol AVL y una lista de acciones.
  *Luego pide por teclado el nombre y apellido de un contacto
  *y lo elimina del arbol AVL. Si el contacto estaba en el arbol, entonces
- *crea una accion del tipo ELIMINAR, con el contacto igual al eliminado y
- *el archivo igual a "", y la inserta en la Lista.
+ *crea una accion del tipo ELIMINAR, con el contacto igual al eliminado,
+ *y la inserta en la Lista.
 */
 static void accion_eliminar(AVL arbol, Lista lista) {
     char* nombre = NULL, *apellido = NULL;
@@ -305,7 +302,7 @@ static void accion_eliminar(AVL arbol, Lista lista) {
     Contacto c = contacto_crear(nombre, apellido, "", 0);
     Contacto r = avl_buscar(arbol, c);
     if (r) {
-        Accion a = accion_crear(r, "", ELIMINAR);
+        Accion a = accion_crear(r, ELIMINAR);
         lista_insertar(lista, a);
         avl_eliminar(arbol, c);
         accion_destruir(a);
@@ -321,8 +318,8 @@ static void accion_eliminar(AVL arbol, Lista lista) {
  *Pide que se ingrese un nombre y un apellido de un contacto por teclado
  *y si este pertenece al arbol AVL pide la edad y el telefono para actualizar
  *el contacto del arbol. Si el contacto estaba en el arbol tambien crea una
- *accion del tipo EDITAR, con el contacto igual al anterior de la edicion y
- *el archivo igual a "", y lo agrega a la lista pasada.
+ *accion del tipo EDITAR, con el contacto igual al anterior de la edicion,
+ *y lo agrega a la lista pasada.
 */
 static void accion_editar(AVL arbol, Lista lista) {
     char* nombre = NULL, *apellido = NULL;
@@ -357,13 +354,11 @@ static void accion_editar(AVL arbol, Lista lista) {
     if (r) {
         unsigned edad = 0;
         char* telefono = NULL;
-        Accion a = accion_crear(r, "", EDITAR);
+        Accion a = accion_crear(r, EDITAR);
         lista_insertar(lista, a);
         accion_destruir(a);
         printf("\nEl contacto contiene los siguientes datos:\n");
         printf("Nombre: %s\nApellido: %s\nEdad: %d\nTelefono: %s\n", r->nombre, r->apellido, r->edad, r->telefono);
-        //printf("\nIngrese la nueva edad:\n>");
-
         while (!edad) {
         printf("Ingrese la nueva edad:\n>");
         scanf("%i", &edad);
@@ -395,13 +390,12 @@ static void accion_editar(AVL arbol, Lista lista) {
 }
 
 /**
- *accion_cargar :: AVL -> Lista -> void
- *Funcion estatica que toma un arbol AVL y una lista de acciones.
+ *accion_cargar :: AVL -> void
+ *Funcion estatica que toma un arbol AVL.
  *Luego pide que se ingrese la ruta de un archivo CSV con contactos y los
- *inserta en el arbol. Tambien crea una accion de tipo CARGAR, con un contacto
- *nulo y la ruta de archivo igual a la ingresada, que inserta en la lista.
+ *inserta en el arbol.
 */
-static void accion_cargar(AVL arbol, Lista lista) {
+static void accion_cargar(AVL arbol) {
     char* input = NULL;
     while (!input) {
         printf("Ingrese el archivo de entrada:\n>");
@@ -415,9 +409,6 @@ static void accion_cargar(AVL arbol, Lista lista) {
         }
     }
     cargar_contactos_avl(arbol, input);
-    Accion a = accion_crear(NULL, input, CARGAR);
-    lista_insertar(lista, a);
-    accion_destruir(a);
     free(input);
 }
 
@@ -598,7 +589,6 @@ static void accion_buscar_suma_edades (AVL arbol) {
  *-AGREGAR: elimina el contacto agregado del arbol.
  *-ELIMINAR: agrega el contacto eliminado al arbol.
  *-EDITAR: pone los datos originales del dato.
- *-CARGAR: elimina del arbol todos los contactos agregados.
 */
 static void accion_deshacer(AVL arbol, Lista lista) {
     Accion deshacer = lista_anterior(lista);
@@ -620,14 +610,11 @@ static void accion_deshacer(AVL arbol, Lista lista) {
             strcpy(deshacer->contacto->telefono, aux->telefono);
             contacto_destruir(aux);
             break;
-        case CARGAR:
-            if (!access(deshacer->archivo, F_OK))
-                eliminar_contactos_avl(arbol, deshacer->archivo);
-            break;
         default:
             break;
         }
-    }
+    } else
+        printf("No hay nada que deshacer\n");
 }
 
 /**
@@ -657,16 +644,11 @@ static void accion_rehacer(AVL arbol, Lista lista) {
             strcpy(rehacer->contacto->telefono, aux->telefono);
             contacto_destruir(aux);
             break;
-        case CARGAR:
-            if (!access(rehacer->archivo, F_OK))
-                cargar_contactos_avl(arbol, rehacer->archivo);
-            break;
         default:
             break;
         }
-    } else {
+    } else
         printf("No hay nada que rehacer\n");
-    }
 }
 
 /**
@@ -689,7 +671,7 @@ void accion_redirigir(AccionTipo a, AVL arbol, Lista lista) {
         accion_editar(arbol, lista);
         break;
     case CARGAR:
-        accion_cargar(arbol, lista);
+        accion_cargar(arbol);
         break;
     case GUARDAR:
         accion_guardar(arbol);

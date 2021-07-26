@@ -88,14 +88,22 @@ static NodoLista* lista_nodo_insertar(NodoLista* ult, void* dato, FuncionCopiado
 */
 void lista_insertar(Lista lista, void* dato) {
     if (lista->act && lista->act->sig) {//caso de que haya acciones para rehacer
-        printf("Elimino los siguientes");
+        //printf("Elimino los siguientes");
         lista_nodo_destruir(lista->act->sig, lista->destr);
+        lista->act->sig = NULL;
         lista->nNodos = lista_largo(lista);
+        if (!lista->prm->dato)
+            lista->nNodos--;
     }
     lista->act = lista_nodo_insertar(lista->act, dato, lista->copia);
     lista->nNodos++;
     if (!lista->prm)
         lista->prm = lista->act;
+    else if (!lista->prm->dato) {
+        //si el primer nodo era "nulo" lo eliminamos
+        lista->prm = lista->act;
+        free(lista->prm->ant);
+    }
     else if (lista->nNodos > lista->capacidad) { //por si excedemos la capacidad
         NodoLista* aux = lista->prm->sig; //eliminamos el primero
         lista->destr(lista->prm->dato);
@@ -117,11 +125,13 @@ void* lista_anterior(Lista lista) {
         void* dato = lista->act->dato;
         if (lista->act->ant)
             lista->act = lista->act->ant;
-        else if (dato){
+        else if (dato){ //si el actual es el primero
+            //creamos un nodo "nulo" para usar de primero
             NodoLista* nuevoNodo = malloc(sizeof(NodoLista));
             nuevoNodo->dato = NULL;
             nuevoNodo->ant = NULL;
             nuevoNodo->sig = lista->act;
+            lista->act->ant = nuevoNodo;
             lista->act = nuevoNodo;
             lista->prm = nuevoNodo;
         }
@@ -140,6 +150,12 @@ void* lista_anterior(Lista lista) {
 void* lista_siguiente(Lista lista) {
     if (lista->act && lista->act->sig) {
         lista->act = lista->act->sig;
+        if (!lista->act->ant->dato) {
+            //si el nodo anterior era "nulo" lo eliminamos
+            free(lista->act->ant);
+            lista->act->ant = NULL;
+            lista->prm = lista->act;
+        }
         return lista->act->dato;
     }
     return NULL;

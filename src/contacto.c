@@ -122,11 +122,9 @@ void contacto_destruir(void* c) {
  *parametros extras para la funcion, en este caso deben ser NULL.
  *Imprimira en pantalla los del contacto pasado.
 */
-void contacto_imprimir(void* c, void* extras) {
-    if (!extras) {
+void contacto_imprimir(void* c, __attribute__((unused)) void* extras) {
         Contacto contacto = (Contacto) c;
         printf("{%s, %s, %s, %d}", contacto->nombre, contacto->apellido, contacto->telefono, contacto->edad);
-    }
 }
 
 /**
@@ -289,58 +287,3 @@ Array suma_edades(Array array, unsigned sumaTotal) {
     }
     return subConj;
 }
-/*
-int main(){
-    AVL arbol = avl_crear(contacto_copia, contacto_comparar_nombre, contacto_destruir);
-    Contacto c = contacto_crear("maxi", "nielsen", "3413190720",20);
-    avl_insertar(arbol, c);
-    contacto_destruir(c);
-     c = contacto_crear("alejo", "gonzalez", "3413190720",25);
-    avl_insertar(arbol, c);
-    contacto_destruir(c);
-    c = contacto_crear("alejo", "a", "3413190720",21);
-    avl_insertar(arbol, c);
-    contacto_destruir(c);
-    c = contacto_crear("z", "a", "3413190720",19);
-    avl_insertar(arbol, c);
-    contacto_destruir(c);
-    c = contacto_crear("z", "b", "3413190720",30);
-    avl_insertar(arbol, c);
-    contacto_destruir(c);
-    c = contacto_crear("z","a", "", 0);
-    avl_eliminar(arbol,c);
-    contacto_destruir(c);
-    avl_recorrer(arbol, 0, contacto_imprimir, NULL);
-    printf("\n");
-
-    AVL arbol_edades = avl_crear(contacto_copia, contacto_comparar_edad, contacto_destruir);
-    avl_recorrer(arbol, 0, contacto_agregar_avl, arbol_edades);
-    avl_recorrer(arbol_edades, 0, contacto_imprimir, NULL);
-    printf("\n");
-    Array array = array_crear(50, contacto_copia, contacto_destruir);
-    // c = contacto_crear("z", "b", "3413190720",30);
-    //  array_insertar(array, c);
-    //  array_insertar(array, c);
-    //  contacto_imprimir(array_buscar(array, 1), NULL);
-    // contacto_destruir(c);
-
-    avl_recorrer(arbol, 0, contacto_agregar_array, array);
-    for (unsigned i = 0; i < array->numElems; i++) {
-        contacto_imprimir(array_buscar(array, i), NULL);
-        printf("\n");
-    }
-    Array subConj = suma_edades(array, 0);
-    if (array_nelems(subConj)) {
-        for (unsigned i = 0; i < subConj->numElems; i++) {
-        contacto_imprimir(array_buscar(subConj, i), NULL);
-        printf("\n");
-        }
-    } else
-          printf("No existe el subconjunto");
-    array_destruir(subConj);
-    array_destruir(array);
-    avl_destruir(arbol_edades);
-    avl_destruir(arbol);
-    return 0;
-}
-*/

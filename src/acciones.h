@@ -23,20 +23,19 @@ typedef enum {
 } AccionTipo;
 
 /**
- *Una accion constara de un contacto, un string que sera la ruta a un
- *archivo CSV y un natural entre 0 y 12 que sera el tipo de accion a
- *realizar.
+ *Una accion constara de un contactoy un natural entre 0 y 12
+ *que sera el tipo de accion a realizar. Para esta implementacion solo se
+ *deberian usar del 2 al 4 ya que son las unicas que se pueden deshacer.
 */
 struct _Accion {
     Contacto contacto;
-    char* archivo;
     AccionTipo tipo;
 };
 
 typedef struct _Accion *Accion;
 
 //Crea una accion apartir de los datos pasados.
-void* accion_crear(Contacto, char*, AccionTipo);
+void* accion_crear(Contacto, AccionTipo);
 
 //Crea una copia de una accion apartir de otra
 void* accion_copia(void*);
@@ -44,10 +43,20 @@ void* accion_copia(void*);
 //Libera la memoria de una accion
 void accion_destruir(void*);
 
-//void accion_imprimir(void*);
-
 //Lee la entrada por teclado hasta llegar a un salto de linea y la devuelve.
 char *leer();
+
+//Elimina los espacios demas de un string
+void normalizar_string(char*);
+
+//Pasa un string a minusculas
+void string_minusculas(char*);
+
+//Devuelve 1 si el string pasado contiene comas, sino 0
+int contiene_coma(char*);
+
+//Devuelve 1 si el string pasado es igual a "", sino 0
+int str_vacio(char*);
 
 //Redirije las acciones segun el natural pasado para que se
 //ejecuten correctamente

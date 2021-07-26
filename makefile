@@ -1,6 +1,15 @@
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g
 CC = gcc
 
+valgrind_test: test
+	valgrind --tool=memcheck --leak-check=full ./test
+
+test: tests.o acciones.o contacto.o array.o avl.o lista.o archivo.o
+	$(CC) $(CFLAGS) -o test tests.o acciones.o contacto.o array.o avl.o lista.o archivo.o -lm
+
+tests.o: ./tests/tests.c acciones.o contacto.o array.o avl.o lista.o archivo.o
+	$(CC) $(CFLAGS) -c ./tests/tests.c -lm
+
 main: main.o acciones.o contacto.o array.o avl.o lista.o archivo.o
 	$(CC) $(CFLAGS) -o main main.o acciones.o contacto.o array.o avl.o lista.o archivo.o -lm
 

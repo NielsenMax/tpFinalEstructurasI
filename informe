@@ -1,0 +1,153 @@
+Informe trabajo final de Maximiliano Nielsen. 26/7/2021.
+
+* Modulos:
+
+El programa se encuentra dividido en dos carpetas, src y tests. En src se encontrara
+todo el codigo del programa en si y tests se encuentran los tests para el mismo.
+
+En la carpeta src encontraremos los distintos modulos del programa:
+  -avl.h: Contiene una implementacion de arboles avl que sera usada como la agenda.
+   Es decir sera la estructura en donde guardaremos los contactos.
+  -array.h: Contiene una implementacion de arrays que insertan elementos
+   en su ultima casilla disponible. Mantienen un tamaño fijo.
+   Sera uso principalmente para el problema de la suma de edades.
+  -lista.h: Contiene una implementacion de una lista doblemente enlazada
+   con un puntero al primer elemento y uno al "actual". Es decir, al
+   ultimo elemento insertado o a alguno anterior a este si es que se
+   usa la funcion lista_anterior.
+   Esta estructura de datos se usara para poder deshacer y rehacer acciones
+  -contacto.h: Contiene la estructura que representara a un contacto y las
+   funciones principales que los manipulen.
+   Tambien incluye la solucion al problema de la suma de edades.
+  -acciones.h: Contiene la estrucutra que represntara una accion en el
+   programa, es decir la que se usara para poder deshacer y rehacer.
+   Tambien controla casi todas las inputs del usuario y la logica para hacer
+   uso de las funciones de contacto.h.
+  -archivo.c: Contiene las funciones que pueden leer y escribir archivos CSV usados
+   para importar y exportar la agenda.
+  -main.c: Contiene el bucle principal del programa que corre hasta que se
+   ingrese la accion de salida. Tambien incluye la constante para la cantidad
+   de acciones maximas que se pueden deshacer/rehacerr.
+
+Los tests se encuntran en el archivo tests/tests.c, en el cual se encuentra
+una funcion por cada archivo con funciones testeables (avl.h, array.h, lista.h,
+contacto.h, acciones.h).
+
+* Estructuras usadas:
+
+Para la implementacion de la agenda primero considere el uso de una tabla hash
+dado que es rapida para las funciones de insertar, editar, buscar y borrar, pero
+esta requiere recorrer muchas casillas vacias generalmente para poder obtener
+todos los datos de la tabla. Ademas al no estar ordenada, todas las funciones
+de guardar ordenado deberian recorrer toda la tabla y ordenarla.
+Por estas razones decidi usar una arbol AVL ya que los tiempo de insercion,
+edicion, buscado y borrado no son tan distintos (la complejidad es O(log n)
+con n siendo los contactos ingresados) y ademas contaba con la ventaja de
+ya estar ordenada por nombre y apellido, teniendo que solo recorrerla en inorden
+para obtener la lista de contactos ordenada. A la hora de recorrer todo el arbol
+tambien tiene la ventaja de no recorrer nodos vacios, si no que solo recorre
+contactos.
+
+Para la implementacion de las funciones de deshacer/rehacer use una lista
+doblemente enlazada con dos punteros, uno al primer elemento y otro al
+actual. Esta estrucutura me parecio ideal ya que permitia moverme entre las
+acciones realizadas de forma simple ademas de poder redimensionarse facilmente
+a la hora de insertar un elemento luego de deshacer algunas acciones.
+Para deshacer la primer acciones a la lista se le incluye un nodo sin dato para
+poder usarse como primero y actual, que luego se elimina al rehacer o insertar
+un nuevo elemento.
+
+* Algoritmos:
+
+-deshacer/rehacer:
+Para este problema use simplemente la lista ya mencionada que me permitia
+resolverlo solo con dos funciones y un puntero que se mueva sobre esta.
+En la lista use una estructura que consistia en un contacto y un numero entre
+0 y 12 que simbolizaba una accion. Como solo se debian poder deshacer/rehacer
+algunas acciones, en la ejecucion solo se terminan insertando acciones con tipo
+entre 2 y 4.
+La primer funcion lista_anterior me permite devolver el nodo anterior al puntero
+actual, pudiendo deshacer la accion a la que corresponda. La segunda funcion
+lista_siguiente me permite devolver el nodo siguiente al puntero actual,
+pudiendo rehacer la accion a la que corresponde.
+Para deshacer/rehacer la accion de editar tengo que cambiar el dato almacenado
+en la lista por el preedicion o el postedicion, es decir, si quiero deshacer
+la edicion debo tener guardado el anterior a la edicion y si quiero rehacer
+debo tener guardado el posterior a la edicion.
+
+-guardar ordenado:
+Para este problema la solucion se podria separar en dos partes, guardar ordenado
+por nombre y las demas. Para guardar ordenado por nombre simplemente recorro
+el arbol de agenda en una DFS en inorden. Si bien los datos estan almacenados
+primero por comparar el nombre y luego por comparar el apellido, los datos
+con el mismo nombre seran hijos/padres/hermanos entre ellos y por lo tanto
+que eran un "cluster" al recorrer el arbol. Para escribir sobre el archivo,
+hago que lo haga la funcion visitante que recorre el arbol.
+Para la segunda parte del problema use un algortimo parecido. Recorri todo
+el arbol almacenando los contactos en un nuevo arbol AVL pero ordenado por
+el atributo que nos interesaba. En el caso de ordenar por apellido primero
+comparo por este y si son iguales los comparo por el nombre. Para ordenar
+por edad y telefono comparo estos campos y si son iguales por nombre y apellido
+en ese orden.
+Luego de generar el nuevo arbol lo recorro en inorden y lo guardo al archivo.
+
+-suma de edades:
+Para poder resolver este problema aplique una solucion de programacion dinamica
+del tipo  bottom-up.
+Esta se basa en la idea de que para poder generar el numero j usando el numero
+i tenemos que poder generar el numero j - i > 0. Para esto genero una matriz
+de enteros de dimensiones  m+1 (cantidad de elementos mas uno) por n+1
+(suma a encontrar mas uno). Llamaremos A al conjunto de todos los elementos
+a evaluar y A[i] significa el elemento i de A.
+La primer columna de esta matriz seran todos
+valores True(1) y la primer fila seran todos valores False(0).
+Para rellenar la matriz empezaremos recorriendo desde la casilla (1,1)
+hacia la derecha y para abajo hasta llegar a (m+1,n+1). Para saber
+si la casilla (i,j) tiene que ser True o False veremos lo siguiente:
+  -Si la casilla encima de esta es True la nuestra tambien, dado que
+   ya habiamos calculado que el valor j se podia construir.
+  -Si la casilla (i-1, j - A[i-1]) tiene un True la nuestra tambien.
+   usamos A[i-1] ya que i esta desfasado por 1 con respecto a la cantidad
+   de elementos de A.
+   Que (i - 1, j - A[i-1]) sea True siginifica que podemos construir al valor
+   j - A[i-1] y por lo tanto al sumarle A[i-1] obtenemos a j como queriamos.
+Luego sabremos si existe un subconjunto de A que pueda construir a la suma
+si la casilla (m+1,n+1) es True.
+Para poder reconstruir el conjunto solo nos basta con empezar en (m+1,n+1) y
+movermos hacia arriba hasta que el que este sobre nosotros sea False. Esto
+implica que A[i-1] es un elemento que pertenece al subconjunto. Luego saltamos
+a (i-1,j-A[i-1]) y repetimos el proceso hasta llegar a la primer columna.
+
+* Dificultades:
+
+La mayor dificultad fue decir que estrucutura usar para poder almacenar los
+contactos ya que una tabla hash y un arbol AVL me parecian ambas buenas
+opciones. Pero finalmente me decidi por el AVL ya que estaba ordenado.
+Despues tuve problemas con la eliminacion de nodos del AVL ya que no me
+habia percatado que el balanceo al eliminar es lo opuesto a insertar, ya
+que insertar en el subarbol izquierdo es similar a eliminar del derecho a la
+hora de balancear.
+Luego otro problema menor fue leer de a lineas del archivo ya que la funcion
+getline no me reservaba la memoria necesaria cuando le reusaba un puntero
+que no apnte a NULL. Pero esto lo soluciones leyendo la documentacion de C
+y viendo que si el puntero era NULL la funcion reservaba la memoria necesaria.
+
+* Compilado y ejecucion:
+compilar:
+  make main
+ejecutar:
+  ./main
+compilar tests:
+  make test
+ejecutar test:
+  ./test
+valgrind:
+  make valgrind
+valgrin tests:
+  make valgrind_test
+
+* Bibliografia:
+
+  - Apuntes del cursado
+  - Suma de edades: https://www.geeksforgeeks.org/subset-sum-problem-dp-25/
+  - getline: https://pubs.opengroup.org/onlinepubs/9699919799/functions/getline.html
