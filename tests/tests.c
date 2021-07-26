@@ -94,6 +94,15 @@ static void test_lista() {
             lista->act = lista->act->ant;
         }
         lista_destruir(lista);
+        lista = lista_crear(5, copiar_puntero_entero, destruir_puntero_entero);
+        int numeros2[] = {23, 56, 78, 21, 2, 35, 49, 64};
+        for (int i = 0; i < 8; i++)
+            lista_insertar(lista, numeros2 + i);
+        //Libera los primeros 3
+        assert(lista_largo(lista) == 5);
+        assert(*(int*)lista->prm->dato == numeros2[3]);
+        assert(*(int*)lista->act->dato == numeros2[7]);
+        lista_destruir(lista);
     }
     {
         printf("TESTEANDO FUNCION lista_anterior\n");
