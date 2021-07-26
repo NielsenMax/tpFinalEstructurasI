@@ -44,6 +44,19 @@ void test_avl() {
       assert(avl_validar(arbol) == 1);
     }
     avl_destruir(arbol);
+    //Test de insertar un contacto igual
+    arbol = avl_crear(contacto_copia, contacto_comparar_nombre,
+                          contacto_destruir);
+    Contacto a = contacto_crear("a", "b", "1", 10);
+    avl_insertar(arbol, a);
+    contacto_destruir(a);
+    a = contacto_crear("a", "b", "2", 8);
+    avl_insertar(arbol, a);
+    Contacto b = avl_buscar(arbol, a);
+    assert(b->edad == 10);
+    assert(!strcmp(b->telefono, "1"));
+    contacto_destruir(a);
+    avl_destruir(arbol);
   }
   {
     printf("TESTEANDO FUNCION avl_buscar\n");
@@ -57,6 +70,18 @@ void test_avl() {
     }
     int aux = 58;
     assert(avl_buscar(arbol, &aux) == NULL);
+    avl_destruir(arbol);
+    //Test editar un contacto
+    arbol = avl_crear(contacto_copia, contacto_comparar_nombre,
+                          contacto_destruir);
+    Contacto a = contacto_crear("a", "b", "1", 10);
+    avl_insertar(arbol, a);
+    Contacto b = avl_buscar(arbol, a);
+    strcpy(b->telefono, "2");
+    b->edad = 8;
+    assert(b->edad == 8);
+    assert(!strcmp(b->telefono, "2"));
+    contacto_destruir(a);
     avl_destruir(arbol);
   }
   {
